@@ -160,17 +160,8 @@ td:first-child{font-size:1.3rem; width:3em; text-align:center}
       <select id="sample" aria-label="サンプルを読み込む">
         <option value="">サンプルを読み込む</option>
         <option value="hello">Hello World!</option>
-        <option value="a">A（テンション版）</option>
-        <option value="ab">AB</option>
-        <option value="loop">A（ループ版）</option>
-        <option value="slip">スベる</option>
-        <option value="mul">3×4（🐠で数字を出す）</option>
-        <option value="count">1から15まで数える</option>
         <option value="fizzbuzz">FizzBuzz（1〜100）</option>
-        <option value="fizzbuzzOld">FizzBuzz（🌞なし・数字で文字を作る版）</option>
-        <option value="sun">Hello World!（🌞版）</option>
         <option value="greet">あいさつ（👙で入力を使う）</option>
-        <option value="echo">オウム返し（💃で1文字ずつ）</option>
       </select>
       <a id="share" class="share" href="#" target="_blank" rel="noopener">Xでポストする</a>
     </div>
@@ -325,22 +316,6 @@ function bigwave(code, input=""){
 /* ===== end interpreter ===== */
 
 const FB = [
-  "🌊↑↑‼️‼️‼️↑‼️‼️ 🏄🏄🌊‼️‼️↑‼️ 🏄🌊↑↑ 🏄🌊‼️‼️↑ 🏊🏊🏊🏊",
-  "🌴",
-  "  🏄🌊 🏄🏄🐚 🏄🐚 🏊",
-  "  🌺",
-  "    🌊↑↑ 🏄🏄 🌊‼️‼️‼️‼️↑‼️↑‼️💥 🌊‼️‼️‼️‼️↑‼️↑💥 🌊‼️‼️‼️‼️↑💥‼️ 🌴🐚🍧 🏊",
-  "    🌺 🌊‼️‼️↑ 🏄 🌊‼️‼️‼️‼️‼️‼️↑↑💥 🌊↑↑‼️‼️‼️↑‼️↑💥 🌊‼️‼️↑💥‼️ 🌴🐚🍧 🏊 🐬",
-  "  🌈",
-  "    🏄",
-  "    🌺 🌊‼️‼️↑ 🏄 🌊‼️‼️‼️‼️‼️‼️↑↑💥 🌊↑↑‼️‼️‼️↑‼️↑💥 🌊‼️‼️↑💥‼️ 🌴🐚🍧 🏊",
-  "    🌈 🏊🏊🏊 🐠 🏄🏄🏄",
-  "    🐬",
-  "  🐬",
-  "  🏊🏊💥 🏊🏊🐚",
-  "🍧"
-].join("\n");
-const FB2 = [
   "🌊↑↑‼️‼️‼️↑‼️‼️ 🏄🏄🌊↑↑ 🏄🌊‼️‼️↑ 🏊🏊🏊",
   "🌴",
   "  🏄🌊 🏄🐚 🏄🐚 🏊",
@@ -359,17 +334,8 @@ const FB2 = [
 ].join("\n");
 const SAMPLES = {
   hello:"🌊‼️‼️‼️↑‼️‼️‼️💥🌊‼️‼️‼️‼️‼️↓↓↓💥🌊‼️‼️‼️↓💥‼️🌊‼️‼️↓💥🐚↑↑↑↑‼️‼️‼️‼️↓💥🌊🌊‼️‼️‼️‼️‼️🌊🌊‼️‼️‼️‼️🌊🌊🌊🌊🌊💥🌊‼️‼️‼️‼️🌊🌊🌊🌊🌊🌊🌊🌊💥🌊🌊🌊💥🐚🐚🐚‼️↑↑💥🐚‼️‼️‼️💥🐚‼️‼️‼️‼️‼️‼️↑↑↑💥",
-  a:"🌊‼️‼️‼️‼️‼️‼️🌊💥",
-  ab:"🌊‼️‼️‼️‼️‼️‼️🌊💥🌊💥",
-  loop:"Yeah～ 🌊🌊🌊🌊🌊🌊🌊🌊🌴🏄🌊🌊🌊🌊🌊🌊🌊🌊🏊🐚🍧🏄🌊💥🇯🇲",
-  slip:"🌊‼️‼️‼️‼️‼️‼️🌊💥↓",
-  mul:"🌊🌊🌊🌴🏄🌊🌊🌊🌊🏊🐚🍧🏄🐠",
-  count:"🌊‼️‼️‼️‼️↓🏄🏄🌊‼️‼️↑‼️🏊🏊🌴🏄🌊🐠🏄💥🏊🏊🐚🍧",
-  fizzbuzz:FB2,
-  fizzbuzzOld:FB,
-  sun:"🌞Hello World!🌞",
-  greet:"🌞こんにちは、🌞👙🌞さん！🌞",
-  echo:"💃🌴💥💃🍧"
+  fizzbuzz:FB,
+  greet:"🌞こんにちは、🌞👙🌞さん！🌞"
 };
 
 const $ = id => document.getElementById(id);
@@ -434,7 +400,7 @@ codeEl.addEventListener("input",save);
 $("sample").addEventListener("change",e=>{
   const v=e.target.value; if(!v) return;
   codeEl.value=SAMPLES[v]; save(); e.target.value="";
-  if ((v==="greet"||v==="echo") && !inputEl.value) inputEl.value = v==="greet" ? "たろう" : "BigWave!";
+  if (v==="greet" && !inputEl.value) inputEl.value = "たろう";
   run();
 });
 

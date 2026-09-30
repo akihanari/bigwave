@@ -24,7 +24,7 @@ examples/*.bw         サンプルプログラム（拡張子は .bw）
 ```
 
 `index.html` の中で、インタプリタは `/* ===== interpreter ===== */` 〜 `/* ===== end interpreter ===== */` の間にある関数 `bigwave(code)` です。戻り値は `{out, box, p, steps}`、言語上のエラーは `BWError` を投げます。
-サンプルは同じファイル内の `SAMPLES` オブジェクト（FizzBuzz は `FB` / `FB2` 定数）にもあり、`examples/` と中身が重複しています。
+サイトのサンプルは同じファイル内の `SAMPLES` オブジェクトにあり（Hello World!・FizzBuzz（`FB` 定数）・あいさつの3つ）、`examples/` と中身が重複しています。その他のサンプルは `examples/` だけにあります。
 
 ## 言語仕様（現行）
 
