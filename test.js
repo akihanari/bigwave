@@ -59,6 +59,8 @@ check("multiply.bw → 12", () => eq(bigwave(readBW("multiply.bw")).out, "12"));
 check("count.bw → 1〜15", () => eq(bigwave(readBW("count.bw")).out, lines(15)));
 check("fizzbuzz.bw → FizzBuzz", () => eq(bigwave(readBW("fizzbuzz.bw")).out, fizzbuzz));
 check("fizzbuzz_classic.bw → FizzBuzz", () => eq(bigwave(readBW("fizzbuzz_classic.bw")).out, fizzbuzz));
+check("greet.bw（入力：たろう）→ こんにちは、たろうさん！", () => eq(bigwave(readBW("greet.bw"), "たろう").out, "こんにちは、たろうさん！"));
+check("echo.bw（入力：BigWave!）→ BigWave!", () => eq(bigwave(readBW("echo.bw"), "BigWave!").out, "BigWave!"));
 
 // ---- テンション記号 ----
 console.log("■ テンション記号");
@@ -79,6 +81,21 @@ console.log("■ 🌺🌈🐬");
 check("0 なら 🌺 側を実行", () => eq(bigwave("🌺🌞A🌞🌈🌞B🌞🐬").out, "A"));
 check("0 でなければ 🌈 側を実行", () => eq(bigwave("🌊🌺🌞A🌞🌈🌞B🌞🐬").out, "B"));
 check("🌈 省略・0 でなければ飛ばす", () => eq(bigwave("🌊🌺🌞A🌞🐬🌞C🌞").out, "C"));
+
+// ---- 入力 💃👙 ----
+console.log("■ 入力 💃👙");
+check("💃💥 で1文字をそのまま返す", () => eq(bigwave("💃💥", "A").out, "A"));
+check("💃 は文字の番号を入れる", () => eq(bigwave("💃🐠", "A").out, "65"));
+check("💃 は256で割った余り（あ=12354 → 66）", () => eq(bigwave("💃🐠", "あ").out, "66"));
+check("💃‼️ は2文字読んで最後の文字が残る", () => eq(bigwave("💃‼️💥", "AB").out, "B"));
+check("💃 入力の終わりなら0", () => eq(bigwave("🌊💃🐠", "").out, "0"));
+check("💃 で終わりまで読むループ", () => eq(bigwave("💃🌴💥💃🍧", "abc").out, "abc"));
+check("👙 で1行をそのまま出力", () => eq(bigwave("🌞こんにちは、🌞👙🌞さん！🌞", "たろう").out, "こんにちは、たろうさん！"));
+check("👙‼️ は2行読む（改行は出力しない）", () => eq(bigwave("👙‼️", "a\nb\nc").out, "ab"));
+check("👙 は絵文字も壊さない", () => eq(bigwave("👙", "🇯🇲‼️🌊").out, "🇯🇲‼️🌊"));
+check("👙 入力の終わりなら何も出さない", () => eq(bigwave("👙👙", "a").out, "a"));
+check("👙 と 💃 は同じ入力を続きから読む", () => eq(bigwave("👙💃💥", "a\nb").out, "ab"));
+check("入力の改行 CRLF も1行として扱う", () => eq(bigwave("👙🌞/🌞👙", "a\r\nb").out, "a/b"));
 
 // ---- エラー ----
 console.log("■ エラー");
