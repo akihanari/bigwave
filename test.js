@@ -61,6 +61,11 @@ check("fizzbuzz.bw → FizzBuzz", () => eq(bigwave(readBW("fizzbuzz.bw")).out, f
 check("fizzbuzz_classic.bw → FizzBuzz", () => eq(bigwave(readBW("fizzbuzz_classic.bw")).out, fizzbuzz));
 check("greet.bw（入力：たろう）→ こんにちは、たろうさん！", () => eq(bigwave(readBW("greet.bw"), "たろう").out, "こんにちは、たろうさん！"));
 check("echo.bw（入力：BigWave!）→ BigWave!", () => eq(bigwave(readBW("echo.bw"), "BigWave!").out, "BigWave!"));
+check("slip.bw → 💥がスベって何も出ない", () => {
+  const r = bigwave(readBW("slip.bw"));
+  eq(r.out, "");
+  eq(r.box[0], 65, "箱の値");
+});
 
 // ---- テンション記号 ----
 console.log("■ テンション記号");
