@@ -24,7 +24,7 @@ examples/*.bw         サンプルプログラム（拡張子は .bw）
 ```
 
 `index.html` の中で、インタプリタは `/* ===== interpreter ===== */` 〜 `/* ===== end interpreter ===== */` の間にある関数 `bigwave(code)` です。戻り値は `{out, box, p, steps}`、言語上のエラーは `BWError` を投げます。
-サンプルは同じファイル内の `SAMPLES` オブジェクト（FizzBuzz は `FB` / `FB2` 定数）にもあり、`examples/` と中身が重複しています。
+サイトのサンプルは同じファイル内の `SAMPLES` オブジェクトにあり（Hello World!・FizzBuzz（`FB` 定数）・あいさつの3つ）、`examples/` と中身が重複しています。その他のサンプルは `examples/` だけにあります。
 
 ## 言語仕様（現行）
 
@@ -101,6 +101,7 @@ examples/*.bw         サンプルプログラム（拡張子は .bw）
 | `fizzbuzz_classic.bw` | 同上（🌞を使わない版） |
 | `greet.bw` | 入力「たろう」で `こんにちは、たろうさん！` |
 | `echo.bw` | 入力をそのまま出力 |
+| `slip.bw` | 何も出力しない（💥がスベる。箱0は65） |
 
 `hello.bw` は作者が自力で書いた記念のプログラムなので、内容を書き換えないこと。
 
