@@ -3,7 +3,7 @@
 絵文字で書く、テンションが高いほど効率がいいプログラミング言語。
 🌊に‼️を盛るほど波がデカくなる。
 
-**▶ プレイグラウンド：** https://ユーザー名.github.io/bigwave/
+**▶ サイト：** https://akihanari.github.io/bigwave/
 
 ```
 🌞Hello World!🌞
