@@ -1,0 +1,28 @@
+# PR や main への push のたびに npm test を自動で実行する
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# リポジトリの中身を読むだけの最小権限にしておく
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # package.json の engines（>=18）に合わせて、いくつかのバージョンで確かめる
+        node: [18, 20, 22, 24]
+    steps:
+      # 外部アクションはタグではなくコミットID（SHA）で固定して、中身のすり替えを防ぐ
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
