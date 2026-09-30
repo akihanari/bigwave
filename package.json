@@ -1,0 +1,19 @@
+{
+  "name": "bigwave",
+  "version": "0.1.0",
+  "description": "絵文字で書く、テンションが高いほど効率がいいプログラミング言語。",
+  "main": "bigwave.js",
+  "bin": {
+    "bigwave": "bin/bigwave.js"
+  },
+  "scripts": {
+    "test": "node test.js",
+    "build": "node build.js"
+  },
+  "files": [
+    "bigwave.js",
+    "bin/"
+  ],
+  "license": "MIT",
+  "author": "choco_py3"
+}
