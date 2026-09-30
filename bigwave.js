@@ -4,10 +4,13 @@
 
 /* ===== interpreter ===== */
 class BWError extends Error {}
-function bigwave(code){
-  const OPS = ["🏄","🏊","🌊","🐚","💥","🐠","🌴","🍧","🌺","🌈","🐬"];
+function bigwave(code, input=""){
+  const OPS = ["🏄","🏊","🌊","🐚","💥","🐠","💃","👙","🌴","🍧","🌺","🌈","🐬"];
   const seg = new Intl.Segmenter("ja",{granularity:"grapheme"});
   const chars = [...seg.segment(code)].map(s=>s.segment);
+  // 入力も見た目の1文字ずつに分ける（改行は \n に揃える）。ip は次に読む位置
+  const inp = [...seg.segment(input.replace(/\r\n?/g,"\n"))].map(s=>s.segment);
+  let ip = 0;
 
   const cmds = [];
   for (let k=0; k<chars.length; k++){
@@ -78,6 +81,21 @@ function bigwave(code){
       const n = String(box[p]);
       if (out.length+n.length*count>100000) throw new BWError("出力が多すぎます。");
       out += n.repeat(count);
+    }
+    else if (op==="💃"){
+      // count 文字読んで、最後に読んだ文字の番号を256で割った余りを入れる。入力の終わりなら0
+      if (count <= inp.length-ip){ ip += count; box[p] = inp[ip-1].codePointAt(0)%256; }
+      else { ip = inp.length; box[p] = 0; }
+    }
+    else if (op==="👙"){
+      // count 行読んで、そのまま出力する（改行は出力しない）。入力の終わりなら何もしない
+      for (let r=0; r<count && ip<inp.length; r++){
+        let e = inp.indexOf("\n", ip);
+        if (e<0) e = inp.length;
+        const line = inp.slice(ip, e).join("");
+        if (out.length+line.length>100000) throw new BWError("出力が多すぎます。");
+        out += line; ip = e+1;
+      }
     }
   }
   return {out, box, p, steps};

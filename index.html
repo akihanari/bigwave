@@ -67,6 +67,8 @@ textarea{
   font-family:inherit; color:var(--ink); background:var(--field);
   border:2px solid var(--line); border-radius:12px; padding:12px 14px; word-break:break-all;
 }
+.input-label{display:block; margin:12px 0 6px; font-weight:800; font-size:.9rem}
+#input{min-height:0; font-size:1.05rem}
 .actions{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-top:12px}
 .primary{
   font:inherit; font-weight:800; font-size:1.1rem; padding:10px 26px; border-radius:999px;
@@ -136,6 +138,8 @@ td:first-child{font-size:1.3rem; width:3em; text-align:center}
       <button data-i="🐚" title="−1">🐚</button>
       <button data-i="💥" title="文字として出力">💥</button>
       <button data-i="🐠" title="数字として出力">🐠</button>
+      <button data-i="💃" title="1文字入力（番号を箱へ）">💃</button>
+      <button data-i="👙" title="1行入力をそのまま出力">👙</button>
       <button data-i="🌞🌞" title="文字をそのまま出力">🌞</button>
       <button data-i="🌴" title="ループ開始">🌴</button>
       <button data-i="🍧" title="ループ終わり">🍧</button>
@@ -148,6 +152,8 @@ td:first-child{font-size:1.3rem; width:3em; text-align:center}
       <button class="t" data-i="‼️" title="回数×2">‼️</button>
     </div>
     <textarea id="code" spellcheck="false" aria-label="BigWaveのコード"></textarea>
+    <label class="input-label" for="input">入力（💃・👙 がここから読みます）</label>
+    <textarea id="input" rows="2" spellcheck="false" placeholder="例：たろう"></textarea>
     <div class="actions">
       <button id="run" class="primary">実行する</button>
       <span class="hint">Ctrl / ⌘ + Enter でも実行</span>
@@ -163,6 +169,8 @@ td:first-child{font-size:1.3rem; width:3em; text-align:center}
         <option value="fizzbuzz">FizzBuzz（1〜100）</option>
         <option value="fizzbuzzOld">FizzBuzz（🌞なし・数字で文字を作る版）</option>
         <option value="sun">Hello World!（🌞版）</option>
+        <option value="greet">あいさつ（👙で入力を使う）</option>
+        <option value="echo">オウム返し（💃で1文字ずつ）</option>
       </select>
       <a id="share" class="share" href="#" target="_blank" rel="noopener">Xでポストする</a>
     </div>
@@ -191,6 +199,8 @@ td:first-child{font-size:1.3rem; width:3em; text-align:center}
           <tr><td>🐚</td><td>今の箱の数を−1</td></tr>
           <tr><td>💥</td><td>今の箱の数を文字にして出力</td></tr>
           <tr><td>🐠</td><td>今の箱の数を数字のまま出力</td></tr>
+          <tr><td>💃</td><td>入力から1文字読んで、その文字の番号を箱に入れる（256で割った余り。入力がもうなければ0）</td></tr>
+          <tr><td>👙</td><td>入力から1行読んで、そのまま出力</td></tr>
           <tr><td>🌞</td><td>🌞と🌞ではさんだ文字をそのまま出力</td></tr>
           <tr><td>🌴</td><td>箱が0なら、対になる🍧の先へ飛ぶ</td></tr>
           <tr><td>🍧</td><td>箱が0でなければ、対になる🌴へ戻る</td></tr>
@@ -216,10 +226,13 @@ td:first-child{font-size:1.3rem; width:3em; text-align:center}
 <script>
 /* ===== interpreter ===== */
 class BWError extends Error {}
-function bigwave(code){
-  const OPS = ["🏄","🏊","🌊","🐚","💥","🐠","🌴","🍧","🌺","🌈","🐬"];
+function bigwave(code, input=""){
+  const OPS = ["🏄","🏊","🌊","🐚","💥","🐠","💃","👙","🌴","🍧","🌺","🌈","🐬"];
   const seg = new Intl.Segmenter("ja",{granularity:"grapheme"});
   const chars = [...seg.segment(code)].map(s=>s.segment);
+  // 入力も見た目の1文字ずつに分ける（改行は \n に揃える）。ip は次に読む位置
+  const inp = [...seg.segment(input.replace(/\r\n?/g,"\n"))].map(s=>s.segment);
+  let ip = 0;
 
   const cmds = [];
   for (let k=0; k<chars.length; k++){
@@ -291,6 +304,21 @@ function bigwave(code){
       if (out.length+n.length*count>100000) throw new BWError("出力が多すぎます。");
       out += n.repeat(count);
     }
+    else if (op==="💃"){
+      // count 文字読んで、最後に読んだ文字の番号を256で割った余りを入れる。入力の終わりなら0
+      if (count <= inp.length-ip){ ip += count; box[p] = inp[ip-1].codePointAt(0)%256; }
+      else { ip = inp.length; box[p] = 0; }
+    }
+    else if (op==="👙"){
+      // count 行読んで、そのまま出力する（改行は出力しない）。入力の終わりなら何もしない
+      for (let r=0; r<count && ip<inp.length; r++){
+        let e = inp.indexOf("\n", ip);
+        if (e<0) e = inp.length;
+        const line = inp.slice(ip, e).join("");
+        if (out.length+line.length>100000) throw new BWError("出力が多すぎます。");
+        out += line; ip = e+1;
+      }
+    }
   }
   return {out, box, p, steps};
 }
@@ -339,11 +367,13 @@ const SAMPLES = {
   count:"🌊‼️‼️‼️‼️↓🏄🏄🌊‼️‼️↑‼️🏊🏊🌴🏄🌊🐠🏄💥🏊🏊🐚🍧",
   fizzbuzz:FB2,
   fizzbuzzOld:FB,
-  sun:"🌞Hello World!🌞"
+  sun:"🌞Hello World!🌞",
+  greet:"🌞こんにちは、🌞👙🌞さん！🌞",
+  echo:"💃🌴💥💃🍧"
 };
 
 const $ = id => document.getElementById(id);
-const codeEl=$("code"), outEl=$("out"), msgEl=$("msg"), tapeEl=$("tape"), shareEl=$("share");
+const codeEl=$("code"), inputEl=$("input"), outEl=$("out"), msgEl=$("msg"), tapeEl=$("tape"), shareEl=$("share");
 
 function save(){ try{ localStorage.setItem("bigwave-code", codeEl.value); }catch(e){} }
 function load(){ try{ return localStorage.getItem("bigwave-code"); }catch(e){ return null; } }
@@ -371,7 +401,7 @@ function renderTape(box,p){
 function run(){
   outEl.classList.remove("splash"); msgEl.className=""; msgEl.textContent="";
   try{
-    const r = bigwave(codeEl.value);
+    const r = bigwave(codeEl.value, inputEl.value);
     if (r.out){
       outEl.textContent = r.out; outEl.classList.remove("empty");
       void outEl.offsetWidth; outEl.classList.add("splash");
@@ -400,10 +430,12 @@ document.querySelectorAll(".palette button").forEach(b=>{
 });
 $("run").addEventListener("click",run);
 codeEl.addEventListener("input",save);
-codeEl.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); run(); }});
+[codeEl,inputEl].forEach(el=>el.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); run(); }}));
 $("sample").addEventListener("change",e=>{
   const v=e.target.value; if(!v) return;
-  codeEl.value=SAMPLES[v]; save(); e.target.value=""; run();
+  codeEl.value=SAMPLES[v]; save(); e.target.value="";
+  if ((v==="greet"||v==="echo") && !inputEl.value) inputEl.value = v==="greet" ? "たろう" : "BigWave!";
+  run();
 });
 
 codeEl.value = load() || SAMPLES.hello;
