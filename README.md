@@ -55,6 +55,33 @@
 - `fizzbuzz.bw` … FizzBuzz（1〜100）
 - `fizzbuzz_classic.bw` … 🌞を使わず、数字から文字を作る FizzBuzz
 
+## パソコンで動かす
+
+[Node.js](https://nodejs.org/)（18 以上）があれば、`.bw` ファイルをコマンドで実行できます。
+
+```
+git clone https://github.com/akihanari/bigwave.git
+cd bigwave
+npm link
+```
+
+これで `bigwave` コマンドが使えるようになります。
+
+```
+bigwave examples/hello.bw
+```
+
+## 開発する
+
+インタプリタの本体は [`bigwave.js`](bigwave.js) です。サイト（`index.html`）にはこのファイルの中身が埋め込まれています。
+
+```
+npm run build   # bigwave.js の中身を index.html に埋め込む
+npm test        # examples などを実行して結果をチェック
+```
+
+`bigwave.js` を直したら、`npm run build` → `npm test` の順に実行してください。
+
 ## ライセンス
 
-LICENSE を参照してください。
+MIT License です。詳しくは [LICENSE](LICENSE) を参照してください。
