@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>BigWave プレイグラウンド</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAF7FF; --surface:#FFFFFF; --ink:#0B2239; --muted:#4A6378;
+  --hero:#0077B6; --hero-ink:#FFFFFF; --sea:#0077B6; --sun:#FFC300;
+  --hibiscus:#D1105A; --palm:#12784F; --line:#B9DDF2; --field:#F6FBFF;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#03192B; --surface:#072B45; --ink:#E6F4FF; --muted:#9DB8CC;
+    --hero:#0A4C7A; --hero-ink:#FFFFFF; --sea:#5CC8FF; --sun:#FFD23F;
+    --hibiscus:#FF6B9E; --palm:#46D993; --line:#16507A; --field:#052238;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#03192B; --surface:#072B45; --ink:#E6F4FF; --muted:#9DB8CC;
+  --hero:#0A4C7A; --hero-ink:#FFFFFF; --sea:#5CC8FF; --sun:#FFD23F;
+  --hibiscus:#FF6B9E; --palm:#46D993; --line:#16507A; --field:#052238;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  line-height:1.7; -webkit-text-size-adjust:100%;
+}
+.hero{background:var(--hero); color:var(--hero-ink); position:relative; overflow:hidden; padding:40px 20px 76px}
+.hero .inner{max-width:880px; margin:0 auto}
+.hero h1{
+  font-family:"Dela Gothic One","Hiragino Sans",sans-serif; font-weight:400;
+  font-size:clamp(3.2rem,12vw,6.8rem); line-height:1.3; margin:0; padding-bottom:.1em; letter-spacing:.01em;
+}
+.hero h1 .bang{color:var(--sun); display:inline-block; transform-origin:50% 90%}
+.hero p{margin:24px 0 0; position:relative; font-weight:700; font-size:1.05rem; max-width:34em}
+.hero svg{position:absolute; left:0; bottom:-1px; width:100%; height:52px; display:block}
+.hero svg path{fill:var(--bg)}
+
+main{max-width:880px; margin:0 auto; padding:8px 20px 56px}
+h2{font-size:1rem; font-weight:800; margin:0 0 10px}
+
+.editor{background:var(--surface); border:2px solid var(--line); border-radius:18px; padding:16px; margin-top:-28px; position:relative}
+.palette{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px}
+.palette button{
+  font:inherit; font-size:1.45rem; line-height:1; width:48px; height:48px;
+  border-radius:12px; border:2px solid var(--line); background:var(--field); color:var(--ink); cursor:pointer;
+}
+.palette button.t{border-color:var(--hibiscus); color:var(--hibiscus); font-weight:800}
+.palette .gap{width:10px}
+.palette button:active{transform:translateY(1px)}
+textarea{
+  width:100%; min-height:170px; resize:vertical; font-size:1.35rem; line-height:1.6;
+  font-family:inherit; color:var(--ink); background:var(--field);
+  border:2px solid var(--line); border-radius:12px; padding:12px 14px; word-break:break-all;
+}
+.actions{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-top:12px}
+.primary{
+  font:inherit; font-weight:800; font-size:1.1rem; padding:10px 26px; border-radius:999px;
+  border:0; background:var(--sun); color:#0B2239; cursor:pointer;
+}
+.primary:hover{filter:brightness(1.05)}
+.hint{color:var(--muted); font-size:.85rem}
+select{font:inherit; padding:6px 10px; border-radius:10px; border:2px solid var(--line); background:var(--field); color:var(--ink)}
+.share{margin-left:auto; color:var(--sea); font-weight:700; text-decoration:underline; text-underline-offset:3px}
+
+.result{display:grid; grid-template-columns:1.2fr 1fr; gap:16px; margin-top:16px}
+.panel{background:var(--surface); border:2px solid var(--line); border-radius:18px; padding:16px; min-width:0}
+#out{
+  display:block; font-size:clamp(1.6rem,5vw,2.4rem); font-weight:800; line-height:1.3;
+  white-space:pre-wrap; word-break:break-all; min-height:1.3em; color:var(--sea);
+}
+#out.empty{font-size:1rem; font-weight:400; color:var(--muted)}
+#out.splash{animation:splash .5s ease-out}
+@keyframes splash{0%{transform:scale(.85);opacity:.2}60%{transform:scale(1.04)}100%{transform:none;opacity:1}}
+#msg{margin:8px 0 0; font-size:.9rem; color:var(--muted)}
+#msg.err{color:var(--hibiscus); font-weight:700}
+
+.tape-scroll{overflow-x:auto}
+.tape{display:flex; gap:6px; list-style:none; margin:0; padding:26px 0 4px}
+.tape li{
+  position:relative; min-width:44px; text-align:center; border:2px solid var(--line);
+  border-radius:10px; padding:6px 4px 4px; background:var(--field); font-weight:800;
+}
+.tape li small{display:block; font-weight:400; font-size:.7rem; color:var(--muted)}
+.tape li.here{border-color:var(--sea)}
+.tape li.here::before{content:"🏄"; position:absolute; top:-26px; left:50%; transform:translateX(-50%); font-size:1.1rem}
+
+.ref{margin-top:28px}
+.ref-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.table-scroll{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:.95rem}
+td{padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top}
+td:first-child{font-size:1.3rem; width:3em; text-align:center}
+.note{color:var(--muted); font-size:.88rem; margin-top:14px}
+
+:focus-visible{outline:3px solid var(--sun); outline-offset:2px}
+@media (max-width:640px){
+  .result,.ref-grid{grid-template-columns:1fr}
+  .share{margin-left:0}
+  .palette button{width:44px; height:44px}
+}
+@media (prefers-reduced-motion: reduce){ #out.splash{animation:none} }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <h1>BigWave<span class="bang">‼️</span></h1>
+    <p>絵文字で書く、テンションが高いほど効率がいいプログラミング言語。<br>🌊に‼️を盛るほど波がデカくなる。</p>
+  </div>
+  <svg viewBox="0 0 1200 52" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,30 C100,5 200,5 300,26 C400,47 500,47 600,26 C700,5 800,5 900,26 C1000,47 1100,47 1200,26 L1200,52 L0,52 Z"/>
+  </svg>
+</header>
+
+<main>
+  <section class="editor" aria-label="コードを書く">
+    <div class="palette" role="toolbar" aria-label="絵文字を入力">
+      <button data-i="🏄" title="次の箱へ">🏄</button>
+      <button data-i="🏊" title="前の箱へ">🏊</button>
+      <button data-i="🌊" title="＋1">🌊</button>
+      <button data-i="🐚" title="−1">🐚</button>
+      <button data-i="💥" title="文字として出力">💥</button>
+      <button data-i="🐠" title="数字として出力">🐠</button>
+      <button data-i="🌞🌞" title="文字をそのまま出力">🌞</button>
+      <button data-i="🌴" title="ループ開始">🌴</button>
+      <button data-i="🍧" title="ループ終わり">🍧</button>
+      <button data-i="🌺" title="もし0なら">🌺</button>
+      <button data-i="🌈" title="そうじゃなければ">🌈</button>
+      <button data-i="🐬" title="もし〜のおわり">🐬</button>
+      <span class="gap" aria-hidden="true"></span>
+      <button class="t" data-i="↑" title="回数＋1">↑</button>
+      <button class="t" data-i="↓" title="回数−1">↓</button>
+      <button class="t" data-i="‼️" title="回数×2">‼️</button>
+    </div>
+    <textarea id="code" spellcheck="false" aria-label="BigWaveのコード"></textarea>
+    <div class="actions">
+      <button id="run" class="primary">実行する</button>
+      <span class="hint">Ctrl / ⌘ + Enter でも実行</span>
+      <select id="sample" aria-label="サンプルを読み込む">
+        <option value="">サンプルを読み込む</option>
+        <option value="hello">Hello World!</option>
+        <option value="a">A（テンション版）</option>
+        <option value="ab">AB</option>
+        <option value="loop">A（ループ版）</option>
+        <option value="slip">スベる</option>
+        <option value="mul">3×4（🐠で数字を出す）</option>
+        <option value="count">1から15まで数える</option>
+        <option value="fizzbuzz">FizzBuzz（1〜100）</option>
+        <option value="fizzbuzzOld">FizzBuzz（🌞なし・数字で文字を作る版）</option>
+        <option value="sun">Hello World!（🌞版）</option>
+      </select>
+      <a id="share" class="share" href="#" target="_blank" rel="noopener">Xでポストする</a>
+    </div>
+  </section>
+
+  <section class="result">
+    <div class="panel">
+      <h2>出力</h2>
+      <output id="out" class="empty">「実行する」を押すと、ここに結果が出ます。</output>
+      <p id="msg"></p>
+    </div>
+    <div class="panel">
+      <h2>箱の中身</h2>
+      <div class="tape-scroll"><ol id="tape" class="tape"></ol></div>
+    </div>
+  </section>
+
+  <section class="ref">
+    <div class="ref-grid">
+      <div class="panel">
+        <h2>命令</h2>
+        <div class="table-scroll"><table>
+          <tr><td>🏄</td><td>次の箱へ進む</td></tr>
+          <tr><td>🏊</td><td>前の箱へ戻る</td></tr>
+          <tr><td>🌊</td><td>今の箱の数を＋1</td></tr>
+          <tr><td>🐚</td><td>今の箱の数を−1</td></tr>
+          <tr><td>💥</td><td>今の箱の数を文字にして出力</td></tr>
+          <tr><td>🐠</td><td>今の箱の数を数字のまま出力</td></tr>
+          <tr><td>🌞</td><td>🌞と🌞ではさんだ文字をそのまま出力</td></tr>
+          <tr><td>🌴</td><td>箱が0なら、対になる🍧の先へ飛ぶ</td></tr>
+          <tr><td>🍧</td><td>箱が0でなければ、対になる🌴へ戻る</td></tr>
+          <tr><td>🌺</td><td>箱が0なら、ここから先を1回だけやる</td></tr>
+          <tr><td>🌈</td><td>箱が0じゃなかったときは、ここから先をやる（省略可）</td></tr>
+          <tr><td>🐬</td><td>🌺〜🌈〜🐬 のおわり</td></tr>
+        </table></div>
+      </div>
+      <div class="panel">
+        <h2>テンション記号</h2>
+        <div class="table-scroll"><table>
+          <tr><td>↑</td><td>直前の命令の回数を＋1</td></tr>
+          <tr><td>↓</td><td>直前の命令の回数を−1</td></tr>
+          <tr><td>‼️</td><td>直前の命令の回数を×2</td></tr>
+        </table></div>
+        <p class="note">左から順に計算します。<br>🌊‼️‼️‼️↓ は 1→2→4→8→7 で、7回。<br>回数が0以下になった命令はスベって何も起きません。🌴🍧🌺🌈🐬には効きません。</p>
+      </div>
+    </div>
+    <p class="note">上の絵文字と記号以外はすべて飾りです（🌞ではさんだ中身は、そのまま出力されます）。Yeah～ も 🇯🇲 も好きなだけ盛ってください。</p>
+  </section>
+</main>
+
+<script>
+/* ===== interpreter ===== */
+class BWError extends Error {}
+function bigwave(code){
+  const OPS = ["🏄","🏊","🌊","🐚","💥","🐠","🌴","🍧","🌺","🌈","🐬"];
+  const seg = new Intl.Segmenter("ja",{granularity:"grapheme"});
+  const chars = [...seg.segment(code)].map(s=>s.segment);
+
+  const cmds = [];
+  for (let k=0; k<chars.length; k++){
+    const c = chars[k];
+    const last = cmds[cmds.length-1];
+    if (c==="🌞"){
+      const end = chars.indexOf("🌞", k+1);
+      if (end<0) throw new BWError("🌞 が閉じていません。文字のうしろにもう1つ 🌞 を置いてください。");
+      cmds.push({op:"🌞", count:1, text:chars.slice(k+1,end).join("")});
+      k = end; continue;
+    }
+    if (OPS.includes(c)) { cmds.push({op:c,count:1}); continue; }
+    if (!last) continue;
+    if (c==="↑") last.count += 1;
+    else if (c==="↓") last.count -= 1;
+    else if (c==="‼️"||c==="‼") last.count *= 2;
+    if (Math.abs(last.count) > 1e9) throw new BWError("テンションが上がりすぎて波を制御できません。‼️を減らしてください。");
+  }
+
+  const jump = {}, stack = [];
+  cmds.forEach((cmd,i)=>{
+    const top = stack[stack.length-1];
+    if (cmd.op==="🌴" || cmd.op==="🌺") stack.push({i, op:cmd.op, els:null});
+    else if (cmd.op==="🍧"){
+      if (!top || top.op!=="🌴") throw new BWError("🍧 に対応する 🌴 がありません。");
+      stack.pop(); jump[i]=top.i; jump[top.i]=i;
+    }
+    else if (cmd.op==="🌈"){
+      if (!top || top.op!=="🌺" || top.els!==null) throw new BWError("🌈 の前に対応する 🌺 がありません。");
+      top.els = i;
+    }
+    else if (cmd.op==="🐬"){
+      if (!top || top.op!=="🌺") throw new BWError("🐬 に対応する 🌺 がありません。");
+      stack.pop();
+      jump[top.i] = top.els!==null ? top.els : i;
+      if (top.els!==null) jump[top.els] = i;
+    }
+  });
+  if (stack.length){
+    const t = stack[stack.length-1];
+    throw new BWError(t.op==="🌴" ? "🌴 が閉じていません。🍧 を足してください。" : "🌺 が閉じていません。🐬 を足してください。");
+  }
+
+  const box = new Array(30000).fill(0);
+  let p = 0, out = "", steps = 0;
+  for (let i=0;i<cmds.length;i++){
+    if (++steps > 5e6) throw new BWError("ループが終わりません。🌴〜🍧 の中で箱が0になるか確認してください。");
+    const {op,count,text} = cmds[i];
+    if (op==="🌴"){ if (box[p]===0) i=jump[i]; continue; }
+    if (op==="🍧"){ if (box[p]!==0) i=jump[i]; continue; }
+    if (op==="🌺"){ if (box[p]!==0) i=jump[i]; continue; }
+    if (op==="🌈"){ i=jump[i]; continue; }
+    if (op==="🐬") continue;
+    if (count<=0) continue;
+    if (op==="🏄"){ p+=count; if (p>=box.length) throw new BWError("沖に出すぎました。箱は30000個までです。"); }
+    else if (op==="🏊"){ p-=count; if (p<0) throw new BWError("最初の箱より左には戻れません。"); }
+    else if (op==="🌊") box[p]=(box[p]+count)%256;
+    else if (op==="🐚") box[p]=((box[p]-count)%256+256)%256;
+    else if (op==="💥"){
+      if (out.length+count>100000) throw new BWError("出力が多すぎます。");
+      out += String.fromCharCode(box[p]).repeat(count);
+    }
+    else if (op==="🌞"){
+      if (out.length+text.length*count>100000) throw new BWError("出力が多すぎます。");
+      out += text.repeat(count);
+    }
+    else if (op==="🐠"){
+      const n = String(box[p]);
+      if (out.length+n.length*count>100000) throw new BWError("出力が多すぎます。");
+      out += n.repeat(count);
+    }
+  }
+  return {out, box, p, steps};
+}
+/* ===== end interpreter ===== */
+
+const FB = [
+  "🌊↑↑‼️‼️‼️↑‼️‼️ 🏄🏄🌊‼️‼️↑‼️ 🏄🌊↑↑ 🏄🌊‼️‼️↑ 🏊🏊🏊🏊",
+  "🌴",
+  "  🏄🌊 🏄🏄🐚 🏄🐚 🏊",
+  "  🌺",
+  "    🌊↑↑ 🏄🏄 🌊‼️‼️‼️‼️↑‼️↑‼️💥 🌊‼️‼️‼️‼️↑‼️↑💥 🌊‼️‼️‼️‼️↑💥‼️ 🌴🐚🍧 🏊",
+  "    🌺 🌊‼️‼️↑ 🏄 🌊‼️‼️‼️‼️‼️‼️↑↑💥 🌊↑↑‼️‼️‼️↑‼️↑💥 🌊‼️‼️↑💥‼️ 🌴🐚🍧 🏊 🐬",
+  "  🌈",
+  "    🏄",
+  "    🌺 🌊‼️‼️↑ 🏄 🌊‼️‼️‼️‼️‼️‼️↑↑💥 🌊↑↑‼️‼️‼️↑‼️↑💥 🌊‼️‼️↑💥‼️ 🌴🐚🍧 🏊",
+  "    🌈 🏊🏊🏊 🐠 🏄🏄🏄",
+  "    🐬",
+  "  🐬",
+  "  🏊🏊💥 🏊🏊🐚",
+  "🍧"
+].join("\n");
+const FB2 = [
+  "🌊↑↑‼️‼️‼️↑‼️‼️ 🏄🏄🌊↑↑ 🏄🌊‼️‼️↑ 🏊🏊🏊",
+  "🌴",
+  "  🏄🌊 🏄🐚 🏄🐚 🏊",
+  "  🌺",
+  "    🌊↑↑ 🌞Fizz🌞 🏄",
+  "    🌺 🌊‼️‼️↑ 🌞Buzz🌞 🐬",
+  "  🌈",
+  "    🏄",
+  "    🌺 🌊‼️‼️↑ 🌞Buzz🌞",
+  "    🌈 🏊🏊 🐠 🏄🏄",
+  "    🐬",
+  "  🐬",
+  "  🌞",
+  "🌞 🏊🏊🏊🐚",
+  "🍧"
+].join("\n");
+const SAMPLES = {
+  hello:"🌊‼️‼️‼️↑‼️‼️‼️💥🌊‼️‼️‼️‼️‼️↓↓↓💥🌊‼️‼️‼️↓💥‼️🌊‼️‼️↓💥🐚↑↑↑↑‼️‼️‼️‼️↓💥🌊🌊‼️‼️‼️‼️‼️🌊🌊‼️‼️‼️‼️🌊🌊🌊🌊🌊💥🌊‼️‼️‼️‼️🌊🌊🌊🌊🌊🌊🌊🌊💥🌊🌊🌊💥🐚🐚🐚‼️↑↑💥🐚‼️‼️‼️💥🐚‼️‼️‼️‼️‼️‼️↑↑↑💥",
+  a:"🌊‼️‼️‼️‼️‼️‼️🌊💥",
+  ab:"🌊‼️‼️‼️‼️‼️‼️🌊💥🌊💥",
+  loop:"Yeah～ 🌊🌊🌊🌊🌊🌊🌊🌊🌴🏄🌊🌊🌊🌊🌊🌊🌊🌊🏊🐚🍧🏄🌊💥🇯🇲",
+  slip:"🌊‼️‼️‼️‼️‼️‼️🌊💥↓",
+  mul:"🌊🌊🌊🌴🏄🌊🌊🌊🌊🏊🐚🍧🏄🐠",
+  count:"🌊‼️‼️‼️‼️↓🏄🏄🌊‼️‼️↑‼️🏊🏊🌴🏄🌊🐠🏄💥🏊🏊🐚🍧",
+  fizzbuzz:FB2,
+  fizzbuzzOld:FB,
+  sun:"🌞Hello World!🌞"
+};
+
+const $ = id => document.getElementById(id);
+const codeEl=$("code"), outEl=$("out"), msgEl=$("msg"), tapeEl=$("tape"), shareEl=$("share");
+
+function save(){ try{ localStorage.setItem("bigwave-code", codeEl.value); }catch(e){} }
+function load(){ try{ return localStorage.getItem("bigwave-code"); }catch(e){ return null; } }
+
+function updateShare(out){
+  const head = out ? `BigWaveで「${out}」を出力した🌊` : "BigWaveで書いてみた🌊";
+  const text = `${head}\n${codeEl.value}\n#BigWave`;
+  shareEl.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text);
+}
+
+function renderTape(box,p){
+  tapeEl.replaceChildren();
+  const start = p>8 ? p-6 : 0, end = start+10;
+  for(let i=start;i<end;i++){
+    const li=document.createElement("li");
+    if(i===p) li.className="here";
+    const small=document.createElement("small");
+    small.textContent = `${i}番`;
+    li.append(String(box[i]), small);
+    li.setAttribute("aria-label", `${i}番の箱：${box[i]}${i===p?"（今ここ）":""}`);
+    tapeEl.appendChild(li);
+  }
+}
+
+function run(){
+  outEl.classList.remove("splash"); msgEl.className=""; msgEl.textContent="";
+  try{
+    const r = bigwave(codeEl.value);
+    if (r.out){
+      outEl.textContent = r.out; outEl.classList.remove("empty");
+      void outEl.offsetWidth; outEl.classList.add("splash");
+    } else {
+      outEl.textContent = "何も出力されませんでした。💥が足りないか、テンションが下がりすぎてスベったかも。";
+      outEl.classList.add("empty");
+    }
+    msgEl.textContent = `${r.steps}ステップで実行しました。`;
+    renderTape(r.box,r.p);
+    updateShare(r.out);
+  }catch(e){
+    outEl.textContent = "エラーで止まりました。"; outEl.classList.add("empty");
+    msgEl.textContent = e instanceof BWError ? e.message : "予期しないエラー：" + e.message;
+    msgEl.className = "err";
+    updateShare("");
+  }
+}
+
+document.querySelectorAll(".palette button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    const t=b.dataset.i, s=codeEl.selectionStart, e=codeEl.selectionEnd;
+    codeEl.value = codeEl.value.slice(0,s)+t+codeEl.value.slice(e);
+    codeEl.selectionStart = codeEl.selectionEnd = s+(t==="🌞🌞" ? 2 : t.length);
+    codeEl.focus(); save();
+  });
+});
+$("run").addEventListener("click",run);
+codeEl.addEventListener("input",save);
+codeEl.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); run(); }});
+$("sample").addEventListener("change",e=>{
+  const v=e.target.value; if(!v) return;
+  codeEl.value=SAMPLES[v]; save(); e.target.value=""; run();
+});
+
+codeEl.value = load() || SAMPLES.hello;
+renderTape(new Array(30000).fill(0),0);
+updateShare("");
+</script>
+</body>
+</html>
